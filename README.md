@@ -25,19 +25,19 @@ profile = profiler.generate_profile()
 
 # Access different aspects of the profile
 print("Basic Information:")
-print(profile['basic_info'])
+display(profile['basic_info'])
 
 print("\nMissing Values Analysis:")
-print(profile['missing_values'])
+display(profile['missing_values'])
 
 print("\nColumn Statistics:")
-print(profile['column_stats'])
+display(profile['column_stats'])
 
 print("\nDuplicates Analysis:")
-print(profile['duplicates'])
+display(profile['duplicates'])
 
 print("\nOutliers Analysis:")
-print(profile['outliers'])
+display(profile['outliers'])
 ```
 
 ## Core Functionality
