@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: data-profiler-kit
-Version: 0.1.1
+Version: 0.1.2
 Summary: A library to provide quick and insightful data profiling for pandas DataFrames
 Author-email: Najm Eddine Charaf <oldcharaf@gmail.com>
 License: MIT License

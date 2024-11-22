@@ -1,6 +1,12 @@
 import pandas as pd
 import numpy as np
 from typing import Dict, Any
+from IPython.display import display
+
+# Set pandas display options globally
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_colwidth', None)
 
 class DataProfiler:
     """Main class for generating data profiles from pandas DataFrames."""
@@ -39,6 +45,14 @@ class DataProfiler:
                 str(self.df.dtypes.value_counts().to_dict())
             ]
         }
+        result_df = pd.DataFrame(data)
+
+        # Align the 'Value' column to the left for better readability
+        result_df['Value'] = result_df['Value'].astype(str)
+
+        # Use display to output the DataFrame
+        display(result_df)
+
         return pd.DataFrame(data)
     
     def _analyze_missing_values(self) -> pd.DataFrame:

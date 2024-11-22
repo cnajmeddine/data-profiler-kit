@@ -4,7 +4,7 @@ A lightweight data profiling tool that provides insights like missing values, di
 
 from .profiler import DataProfiler
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __author__ = "Najm Eddine Charaf"
 __email__ = "oldcharaf@gmail.com"
 

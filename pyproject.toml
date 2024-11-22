@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "data-profiler-kit"
-version = "0.1.1"
+version = "0.1.2"
 description = "A library to provide quick and insightful data profiling for pandas DataFrames"
 readme = "README.md"
 authors = [{name = "Najm Eddine Charaf", email = "oldcharaf@gmail.com"}]
