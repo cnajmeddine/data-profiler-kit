@@ -1,0 +1,121 @@
+Metadata-Version: 2.1
+Name: data-profiler-kit
+Version: 0.1.1
+Summary: A library to provide quick and insightful data profiling for pandas DataFrames
+Author-email: Najm Eddine Charaf <oldcharaf@gmail.com>
+License: MIT License
+        
+        Copyright (c) 2024 Najm Eddine Charaf
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+Project-URL: Homepage, https://github.com/cnajmeddine/data-profiler
+Keywords: data,profiling,pandas,analytics
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pandas>=1.0.0
+Requires-Dist: numpy>=1.18.0
+
+# DataProfilerKit
+
+A Python library that provides quick and insightful data profiling for pandas DataFrames. It generates detailed reports including missing values analysis, data type information, correlations, outliers, and column statistics in a clear, organized format.
+
+## Installation
+
+```bash
+pip install data-profiler-kit
+```
+
+## Usage
+
+```python
+from dataprofilerkit import DataProfiler
+import pandas as pd
+
+# Create or load your DataFrame
+df = pd.read_csv('your_data.csv')
+
+# Create a DataProfiler instance
+profiler = DataProfiler(df)
+
+# Generate the profile
+profile = profiler.generate_profile()
+
+# Access different aspects of the profile
+print("Basic Information:")
+print(profile['basic_info'])
+
+print("\nMissing Values Analysis:")
+print(profile['missing_values'])
+
+print("\nColumn Statistics:")
+print(profile['column_stats'])
+
+print("\nDuplicates Analysis:")
+print(profile['duplicates'])
+
+print("\nOutliers Analysis:")
+print(profile['outliers'])
+```
+
+## Core Functionality
+
+- ### Basic DataFrame Information:
+    - Number of rows, columns, and total cells.
+    - Memory usage of the DataFrame.
+    - Data types and their counts.
+
+- ### Missing Value Analysis:
+    - Total missing values across the DataFrame.
+    - Missing values by column.
+    - Percentage of missing values for each column.
+
+- ### Column-wise Analysis:
+
+    - #### Numeric Columns:
+        - Descriptive statistics (mean, median, standard deviation, etc.).
+        - Skewness and kurtosis.
+
+    - #### Categorical Columns:
+        - Count of unique values.
+        - Top 5 most frequent values with their percentages.
+
+    - #### Datetime Columns:
+        - Minimum and maximum values.
+        - Range in days.
+
+- ### Duplicate Detection:
+    - Duplicate rows (count and percentage).
+    - Duplicate columns (count and list of column names).
+
+- ### Outlier Detection:
+    - For numeric columns, detects outliers using:
+        - Z-score method (with indices and percentages).
+        - Interquartile Range (IQR) method (with indices and percentages).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
