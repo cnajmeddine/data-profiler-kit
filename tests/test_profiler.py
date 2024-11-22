@@ -17,39 +17,51 @@ def test_basic_info(sample_df):
     """Test basic information generation."""
     profiler = DataProfiler(sample_df)
     profile = profiler.generate_profile()
-    
-    assert profile['basic_info']['rows'] == 6
-    assert profile['basic_info']['columns'] == 4
+    basic_info_df = profile['basic_info']
+
+    # Validate the structure and values of basic information
+    assert basic_info_df.loc[basic_info_df['Metric'] == 'Number of Rows', 'Value'].iloc[0] == 6
+    assert basic_info_df.loc[basic_info_df['Metric'] == 'Number of Columns', 'Value'].iloc[0] == 4
+    assert isinstance(basic_info_df.loc[basic_info_df['Metric'] == 'Memory Usage', 'Value'].iloc[0], (int, np.integer))
 
 def test_missing_values(sample_df):
     """Test missing values analysis."""
     profiler = DataProfiler(sample_df)
     profile = profiler.generate_profile()
-    
-    assert profile['missing_values']['total_missing'] == 2
-    assert profile['missing_values']['missing_by_column']['missing_vals'] == 2
+    missing_values_df = profile['missing_values']
+
+    # Validate missing value counts and percentages
+    missing_vals_row = missing_values_df[missing_values_df['Column'] == 'missing_vals']
+    assert missing_vals_row['Total Missing'].iloc[0] == 2
+    assert missing_vals_row['Percentage Missing'].iloc[0] == pytest.approx(33.33, rel=1e-2)
 
 def test_outlier_detection(sample_df):
     """Test outlier detection."""
     profiler = DataProfiler(sample_df)
     profile = profiler.generate_profile()
-    
-    # Print debug information
-    print("\nOutlier detection results:")
-    print(f"Z-score outliers: {profile['outliers']['numeric']['zscore']}")
-    print(f"IQR outliers: {profile['outliers']['numeric']['iqr']}")
-    
-    # Test for outliers
-    assert profile['outliers']['numeric']['zscore']['count'] >= 1, "No z-score outliers detected"
-    assert profile['outliers']['numeric']['iqr']['count'] >= 1, "No IQR outliers detected"
-    
-    # Verify the outlier value is included in the indices
-    assert 5 in profile['outliers']['numeric']['zscore']['indices'], "Expected outlier index not found"
+    outliers_df = profile['outliers']
+
+    # Validate Z-Score outliers
+    zscore_outliers = outliers_df[(outliers_df['Column'] == 'numeric') & (outliers_df['Method'] == 'Z-Score')]
+    assert zscore_outliers['Count'].iloc[0] >= 1
+    assert 5 in eval(zscore_outliers['Indices'].iloc[0])  # Check that the expected index is listed
+
+    # Validate IQR outliers
+    iqr_outliers = outliers_df[(outliers_df['Column'] == 'numeric') & (outliers_df['Method'] == 'IQR')]
+    assert iqr_outliers['Count'].iloc[0] >= 1
+    assert 5 in eval(iqr_outliers['Indices'].iloc[0])  # Check that the expected index is listed
 
 def test_duplicates(sample_df):
     """Test duplicate detection."""
     profiler = DataProfiler(sample_df)
     profile = profiler.generate_profile()
-    
-    assert isinstance(profile['duplicates']['duplicate_rows']['count'], (int, np.integer))
-    assert isinstance(profile['duplicates']['duplicate_columns']['count'], (int, np.integer))
+    duplicates_df = profile['duplicates']
+
+    # Validate duplicates analysis structure
+    duplicate_rows = duplicates_df.loc[duplicates_df['Metric'] == 'Duplicate Rows', 'Value'].iloc[0]
+    assert isinstance(duplicate_rows, (int, np.integer))
+    assert duplicate_rows == 0  # No duplicate rows in this sample
+
+    duplicate_columns = duplicates_df.loc[duplicates_df['Metric'] == 'Duplicate Columns', 'Value'].iloc[0]
+    assert isinstance(duplicate_columns, (int, np.integer))
+    assert duplicate_columns == 0  # No duplicate columns in this sample
