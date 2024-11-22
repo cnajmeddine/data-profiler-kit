@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+src/data_profiler_kit.egg-info/PKG-INFO
+src/data_profiler_kit.egg-info/SOURCES.txt
+src/data_profiler_kit.egg-info/dependency_links.txt
+src/data_profiler_kit.egg-info/requires.txt
+src/data_profiler_kit.egg-info/top_level.txt
+src/dataprofilerkit/__init__.py
+src/dataprofilerkit/profiler.py
+src/dataprofilerkit/utils.py
+tests/test_profiler.py
