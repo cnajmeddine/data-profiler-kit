@@ -11,7 +11,7 @@ pip install data-profiler-kit
 ## Usage
 
 ```python
-from dataprofiler import DataProfiler
+from dataprofilerkit import DataProfiler
 import pandas as pd
 
 # Create or load your DataFrame
