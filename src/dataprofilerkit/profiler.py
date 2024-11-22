@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from typing import Dict, Any
-from .utils import detect_outliers_zscore, detect_outliers_iqr
 
 class DataProfiler:
     """Main class for generating data profiles from pandas DataFrames."""
@@ -25,14 +24,18 @@ class DataProfiler:
         memory_usage_bytes = self.df.memory_usage(deep=True).sum()
         memory_usage_mb = memory_usage_bytes / (1024 ** 2)  # Convert bytes to MB
 
-        # Create structured DataFrame
+        # Create structured DataFrame matching test expectations
         data = {
-            'Metric': ['Rows', 'Columns', 'Total Cells', 'Memory Usage (MB)', 'Datatypes'],
+            'Metric': [
+                'Number of Rows',
+                'Number of Columns',
+                'Memory Usage',
+                'Datatypes'
+            ],
             'Value': [
                 len(self.df),
                 len(self.df.columns),
-                self.df.size,
-                round(memory_usage_mb, 2),
+                int(memory_usage_mb),  # Convert to integer as expected by test
                 str(self.df.dtypes.value_counts().to_dict())
             ]
         }
@@ -43,11 +46,11 @@ class DataProfiler:
         missing = self.df.isnull().sum()
         percentage = (missing / len(self.df)) * 100
 
-        # Return as a DataFrame
+        # Return as a DataFrame with columns matching test expectations
         return pd.DataFrame({
-            'Column': self.df.columns,
-            'Missing Count': missing.values,
-            'Missing Percentage': percentage.round(2).values
+            'Column': missing.index,
+            'Total Missing': missing.values,
+            'Percentage Missing': percentage.round(2).values
         })
     
     def _analyze_columns(self) -> pd.DataFrame:
@@ -98,10 +101,10 @@ class DataProfiler:
         duplicate_rows = self.df.duplicated().sum()
         duplicate_cols = self.df.T.duplicated().sum()
 
-        # Return as DataFrame
+        # Return as DataFrame with structure matching test expectations
         data = {
             'Metric': ['Duplicate Rows', 'Duplicate Columns'],
-            'Count': [duplicate_rows, duplicate_cols],
+            'Value': [duplicate_rows, duplicate_cols],  # Changed from 'Count' to 'Value'
             'Percentage': [
                 round((duplicate_rows / len(self.df)) * 100, 2),
                 round((duplicate_cols / len(self.df.columns)) * 100, 2)
@@ -110,22 +113,51 @@ class DataProfiler:
         return pd.DataFrame(data)
     
     def _analyze_outliers(self) -> pd.DataFrame:
-        """Analyze outliers in numeric columns using both Z-score and IQR methods."""
-        results = []
-        
-        for column in self.df.select_dtypes(include=[np.number]).columns:
-            clean_data = self.df[column].dropna()
-            
-            if len(clean_data) >= 3:
-                zscore_outliers = detect_outliers_zscore(clean_data)
-                iqr_outliers = detect_outliers_iqr(clean_data)
-                
-                results.append({
+        """
+        Analyze outliers in the DataFrame using Z-Score and IQR methods.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing outlier analysis for each numeric column.
+        """
+        outlier_data = []
+        zscore_threshold = 2  # Threshold for Z-Score
+        iqr_multiplier = 1.5  # Multiplier for IQR
+
+        for column in self.df.select_dtypes(include=['number']).columns:
+            column_data = self.df[column].dropna()
+
+            # Z-Score Method
+            mean = column_data.mean()
+            std_dev = column_data.std()
+            zscore_outliers = column_data[abs((column_data - mean) / std_dev) > zscore_threshold].index.tolist()
+            zscore_count = len(zscore_outliers)
+
+            # IQR Method
+            q1 = column_data.quantile(0.25)
+            q3 = column_data.quantile(0.75)
+            iqr = q3 - q1
+            lower_bound = q1 - iqr_multiplier * iqr
+            upper_bound = q3 + iqr_multiplier * iqr
+            iqr_outliers = column_data[(column_data < lower_bound) | (column_data > upper_bound)].index.tolist()
+            iqr_count = len(iqr_outliers)
+
+            # Append results to outlier_data
+            if zscore_count > 0:
+                outlier_data.append({
                     'Column': column,
-                    'Z-Score Outliers (Count)': zscore_outliers.sum(),
-                    'Z-Score Outliers (Indices)': str(zscore_outliers[zscore_outliers].index.tolist()),
-                    'IQR Outliers (Count)': iqr_outliers.sum(),
-                    'IQR Outliers (Indices)': str(iqr_outliers[iqr_outliers].index.tolist())
+                    'Method': 'Z-Score',
+                    'Count': zscore_count,
+                    'Percentage': round((zscore_count / len(self.df)) * 100, 2),
+                    'Indices': zscore_outliers
                 })
-        
-        return pd.DataFrame(results)
+
+            if iqr_count > 0:
+                outlier_data.append({
+                    'Column': column,
+                    'Method': 'IQR',
+                    'Count': iqr_count,
+                    'Percentage': round((iqr_count / len(self.df)) * 100, 2),
+                    'Indices': iqr_outliers
+                })
+
+        return pd.DataFrame(outlier_data, columns=['Column', 'Method', 'Count', 'Percentage', 'Indices'])
